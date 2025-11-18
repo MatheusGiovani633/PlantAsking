@@ -6,14 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.example.plantasking.ui.theme.PlantAskingTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,15 +51,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color(0xFF121212)
                 ) { innerPadding ->
-                    LoginScreen(modifier = Modifier.padding(innerPadding))
+                    TelaInicial(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
+fun login(email: String, password: String): Boolean {
+    return email == "Admin" && password == "admin"
+}
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(modifier: Modifier = Modifier,onLoginSuccess: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val textFieldsColors = OutlinedTextFieldDefaults.colors(
@@ -74,6 +76,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
       unfocusedLabelColor = Color.White,
       cursorColor = Color.White
     )
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -118,7 +121,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                         },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp),
+                    .padding(top = 15.dp,start = 16.dp, end = 16.dp),
                 colors = textFieldsColors
             )
             Spacer(
@@ -139,9 +142,10 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                         color = Color.White.copy(alpha = 0.7f),
                         fontWeight = FontWeight.Bold)
                 },
+                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
+                    .fillMaxWidth()
+                    .padding(top = 15.dp,start = 16.dp, end = 16.dp),
                 colors = textFieldsColors
             )
             Spacer(
@@ -158,7 +162,13 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     .height(30.dp)
             )
             Button(
-                onClick = { /* TODO */ },
+                onClick = {
+                    if(login(email, password)) {
+                        onLoginSuccess()
+                    } else {
+                        println("Login failed")
+                    }
+                },
                 modifier = Modifier
                     .width(320.dp)
                     .height(50.dp),
@@ -188,29 +198,50 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     text = "Clique aqui",
                     color = Color.Blue.copy(alpha = 0.8f),
                     fontSize = 15.sp,
-                    modifier = Modifier.clickable {
-                        
-                    }
+                    modifier = Modifier.clickable {}
                 )
             }
 
         }
     }
 }
-@Composable
-fun HomeScreen() {
 
+@Composable
+fun HomeScreen(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF03A898),
+                        Color(red = 14, green = 174, blue = 138, alpha = 255),
+                        Color(0xFF19B27A)
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+
+        }
+    }
 }
 @Preview()
 @Composable
-fun TelaInicial() {
+fun TelaInicial(modifier: Modifier = Modifier) {
     var loggedIn by remember { mutableStateOf(false) }
     PlantAskingTheme {
         if (loggedIn) {
             HomeScreen()
-        }
-        else{
-            LoginScreen()
+        } else {
+            LoginScreen(modifier = modifier, onLoginSuccess = { loggedIn = true });
         }
     }
 }
