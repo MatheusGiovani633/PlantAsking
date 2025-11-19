@@ -41,12 +41,12 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center
         ) {
 
-            Text(
-                text = "Logado com sucesso!"
-            )
+
         }
     }
 }
+
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {

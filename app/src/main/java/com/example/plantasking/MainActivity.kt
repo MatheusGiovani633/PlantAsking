@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PlantAskingApp(modifier: Modifier = Modifier) {
-    var isLoggedIn by remember { mutableStateOf(true) }
+    var isLoggedIn by remember { mutableStateOf(false) }
 
     if (isLoggedIn) {
         HomeScreen(modifier = modifier)
