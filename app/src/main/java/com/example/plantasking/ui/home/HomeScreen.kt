@@ -1,0 +1,210 @@
+package com.example.plantasking.ui.home
+
+import android.Manifest
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.plantasking.R
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+
+@Composable
+fun HomeScreen(
+    modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val uiState = viewModel.uiState
+    var hasRequiredPermissions by remember {
+        mutableStateOf(
+            (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.CAMERA
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED)
+        )
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            hasRequiredPermissions =
+                permissions.getOrDefault(Manifest.permission.CAMERA, false)
+        }
+    )
+    LaunchedEffect(Unit) {
+        if (!hasRequiredPermissions) {
+            permissionLauncher.launch(
+                arrayOf(Manifest.permission.CAMERA) /*Futuramente irei incluir audio*/
+            )
+        }
+    }
+
+    Box(
+        modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+    ) {
+        if (hasRequiredPermissions) {
+            CameraPreview(
+                modifier = Modifier.fillMaxSize(),
+                onTakePictureClick = { imageCapture ->
+                    viewModel.onTakePicture(context, imageCapture)
+                }
+            )
+        } else {
+            PermissionDeniedContent(
+                onRequestPermission = {
+                    permissionLauncher.launch(
+                        arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
+                    )
+                }, modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF03A898), Color(0xFF0EAE8A), Color(0xFF19B27A)
+                            )
+                        )
+                    )
+            )
+        }
+
+        if (uiState.showDialog) {
+            ImageConfirmationDialog(
+                onConfirm = { viewModel.onDialogConfirm(context) },
+                onDismiss = { viewModel.onDialogDismiss() }
+            )
+        }
+        if (uiState.isLoading) {
+            CircularProgressIndicator()
+        }
+    }
+}
+
+@Composable
+fun ImageConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    androidx.compose.material3.AlertDialog(
+        modifier = Modifier
+            ,
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Foto Capturada") },
+        text = { Text(text = "Deseja usar esta foto?") },
+
+        confirmButton = {
+            Button(
+                onClick = onConfirm) {
+                Text("Usar Foto")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Tentar Novamente")
+            }
+        },
+
+    )
+}
+
+@Composable
+fun CameraPreview(modifier: Modifier = Modifier, onTakePictureClick: (ImageCapture) -> Unit) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val imageCapture = remember { ImageCapture.Builder().build() }
+
+    Box(modifier = modifier) {
+        AndroidView(
+            factory = { ctx ->
+                val previewView = PreviewView(ctx)
+                val executor = ContextCompat.getMainExecutor(ctx)
+
+                cameraProviderFuture.addListener({
+                    val cameraProvider = cameraProviderFuture.get()
+                    val preview = Preview.Builder().build().also {
+                        it.setSurfaceProvider(previewView.surfaceProvider)
+                    }
+                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                    try {
+                        cameraProvider.unbindAll()
+                        cameraProvider.bindToLifecycle(
+                            lifecycleOwner, cameraSelector, preview, imageCapture
+                        )
+                    } catch (exc: Exception) {
+                        Log.e("CameraPreview", "Falha ao vincular os casos de uso", exc)
+                    }
+                }, executor)
+                previewView
+            }, modifier = Modifier.fillMaxSize()
+        )
+        IconButton(
+            onClick = {
+                onTakePictureClick(imageCapture)
+            },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 64.dp)
+                .size(150.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.iconphoto),
+                contentDescription = "Tirar Foto"
+            )
+        }
+    }
+}
+
+@Composable
+fun PermissionDeniedContent(
+    onRequestPermission: () -> Unit, modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "As permissões de Câmera e Áudio são necessárias para usar esta funcionalidade.",
+            color = Color.White,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onRequestPermission) {
+            Text("Conceder Permissões")
+        }
+    }
+}

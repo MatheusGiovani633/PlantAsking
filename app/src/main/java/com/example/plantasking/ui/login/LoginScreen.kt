@@ -1,4 +1,4 @@
-package com.example.plantasking.ui.screens
+package com.example.plantasking.ui.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,7 +37,7 @@ private fun login(email: String, password: String): Boolean {
 }
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier,onLoginSuccess: () -> Unit) {
+fun LoginScreen(modifier: Modifier = Modifier, onLoginSuccess: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val textFieldsColors = OutlinedTextFieldDefaults.colors(
@@ -51,7 +51,6 @@ fun LoginScreen(modifier: Modifier = Modifier,onLoginSuccess: () -> Unit) {
         unfocusedLabelColor = Color.White,
         cursorColor = Color.White
     )
-
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -92,11 +91,12 @@ fun LoginScreen(modifier: Modifier = Modifier,onLoginSuccess: () -> Unit) {
                     Text(
                         "Email",
                         color = Color.White.copy(alpha = 0.7f),
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 15.dp,start = 16.dp, end = 16.dp),
+                    .padding(top = 15.dp, start = 16.dp, end = 16.dp),
                 colors = textFieldsColors
             )
             Spacer(
@@ -115,12 +115,13 @@ fun LoginScreen(modifier: Modifier = Modifier,onLoginSuccess: () -> Unit) {
                     Text(
                         "Senha",
                         color = Color.White.copy(alpha = 0.7f),
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 15.dp,start = 16.dp, end = 16.dp),
+                    .padding(top = 15.dp, start = 16.dp, end = 16.dp),
                 colors = textFieldsColors
             )
             Spacer(
@@ -138,7 +139,7 @@ fun LoginScreen(modifier: Modifier = Modifier,onLoginSuccess: () -> Unit) {
             )
             Button(
                 onClick = {
-                    if(login(email, password)) {
+                    if (login(email, password)) {
                         onLoginSuccess()
                     } else {
                         println("Login failed")
@@ -176,7 +177,7 @@ fun LoginScreen(modifier: Modifier = Modifier,onLoginSuccess: () -> Unit) {
                     modifier = Modifier.clickable {}
                 )
             }
-
         }
     }
 }
+

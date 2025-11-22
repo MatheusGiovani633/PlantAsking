@@ -1,6 +1,6 @@
 // C:/.../PlantAsking/app/src/main/java/com/example/plantasking/MainActivity.kt
 
-package com.example.plantasking
+package com.example.plantasking.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,8 +14,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.plantasking.ui.screens.HomeScreen
-import com.example.plantasking.ui.screens.LoginScreen
+import com.example.plantasking.ui.home.HomeScreen
+import com.example.plantasking.ui.login.LoginScreen
 import com.example.plantasking.ui.theme.PlantAskingTheme
 
 class MainActivity : ComponentActivity() {
