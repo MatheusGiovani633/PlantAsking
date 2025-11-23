@@ -1,5 +1,9 @@
 package com.example.plantasking.ui.home.previews
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,14 +18,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Edit
-
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -89,14 +88,25 @@ private fun PermissionDeniedScreenPreview() {
 private fun PhotoActionBottomSheetPreview() {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    var showMoodDialog by remember { mutableStateOf(false) }
+
+
     ModalBottomSheet(
         onDismissRequest = {
             scope.launch { sheetState.hide() }
         }, sheetState = sheetState
     ) {
-        ActionMenuContent(onAnalyzeClick = {}, onSaveClick = {}, onDismiss = {
-            scope.launch { sheetState.hide() }
-        })
+        ActionMenuContent(
+            onAnalyzeClick = {
+                showMoodDialog = true
+            },
+            onSaveClick = {
+
+            },
+            onDismiss = {
+                scope.launch { sheetState.hide() }
+            }
+        )
     }
 }
 
@@ -120,13 +130,13 @@ private fun ActionMenuContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             ActionMenuItem(
-                icon = Icons.Default.Edit,
+                drawableResId = R.drawable.talk,
                 text = "Conversar",
                 onClick = onAnalyzeClick,
                 modifier = Modifier.weight(1f)
             )
             ActionMenuItem(
-                icon = Icons.Default.Done,
+                drawableResId = R.drawable.mood,
                 text = "Ver Humor",
                 onClick = onSaveClick,
                 modifier = Modifier.weight(1f)
@@ -136,8 +146,8 @@ private fun ActionMenuContent(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         ActionMenuItem(
-            icon = Icons.Default.Close,
-            text = "Descartar",
+            drawableResId = R.drawable.photo,
+            text = "Tirar nova foto",
             onClick = onDismiss,
             modifier = modifier
                 .fillMaxWidth()
@@ -148,7 +158,10 @@ private fun ActionMenuContent(
 
 @Composable
 private fun ActionMenuItem(
-    icon: ImageVector, text: String, onClick: () -> Unit, modifier: Modifier = Modifier
+     drawableResId: Int,
+     text: String,
+     onClick: () -> Unit,
+     modifier: Modifier = Modifier
 ) {
 
     TextButton(
@@ -159,8 +172,53 @@ private fun ActionMenuItem(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
-            Icon(imageVector = icon, contentDescription = text)
+            Image(
+                painter = painterResource(id = drawableResId),
+                contentDescription = text,
+                modifier = Modifier.size(48.dp)
+            )
             Text(text, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
+@Preview(
+    name = "Tela de Ver Humor", showBackground = true
+)
+@Composable
+fun ViewMood(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit = {}
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Gray.copy(alpha = 0.5f)), // Fundo cinza para a preview
+        contentAlignment = Alignment.Center
+    ) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text("Humor da Planta")
+            },
+            text = {
+                Text("A análise indica que a sua planta está feliz! :)")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("OK")
+                }
+            },
+            icon = {
+                Image(
+                    painter = painterResource(id = R.drawable.mood),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        )
+    }
+}
+

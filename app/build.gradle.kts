@@ -1,9 +1,17 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
-
+fun getApiKey(property: String): String {
+    val properties = Properties()
+    val localPropertiesFile = project.rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        properties.load(localPropertiesFile.inputStream())
+    }
+    return properties.getProperty(property) ?: ""
+}
 android {
     namespace = "com.example.plantasking"
     compileSdk = 36
@@ -13,8 +21,8 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 1
+        buildConfigField("String", "GEMINI_API_KEY", getApiKey("GEMINI_API_KEY"))
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -36,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        android.buildFeatures.buildConfig = true
     }
 }
 
@@ -43,7 +52,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

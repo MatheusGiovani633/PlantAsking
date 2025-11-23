@@ -1,7 +1,10 @@
 package com.example.plantasking.ui.home
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.util.Base64
 import androidx.camera.core.ImageCapture
@@ -10,8 +13,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.decodeBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.plantasking.data.remote.PlantRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,6 +26,7 @@ import java.io.InputStream
 
 data class HomeUiState(
     val showDialog: Boolean = false,
+    val analysisResult: String? = null,
     val capturedImageUri: Uri? = null,
     val isLoading: Boolean = false
 )
@@ -41,9 +47,7 @@ class HomeViewModel : ViewModel() {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     outputFileResults.savedUri?.let { uri ->
                         uiState = uiState.copy(
-                            capturedImageUri = uri,
-                            isLoading = false,
-                            showDialog = true
+                            capturedImageUri = uri, isLoading = false, showDialog = true
                         )
                     }
                 }
@@ -54,18 +58,20 @@ class HomeViewModel : ViewModel() {
                 }
             })
     }
+
     fun onDialogPictured(context: Context) {
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, showDialog = false)
             uiState.capturedImageUri?.let { uri ->
-                val base64String = convertUriToBase64(context, uri)
-                if (base64String != null) {
-                    Log.d(
-                        "HomeViewModel", "Imagem convertida com sucesso: ${base64String.take(500)}"
+                val bitmap = convertUriToBitmap(context, uri)
+                if (bitmap != null) {
+                    val analysisJson = PlantRepository().analyzeImage(bitmap)
+                    uiState = uiState.copy(
+                        isLoading = false, analysisResult = analysisJson, showDialog = true
                     )
-                    // TODO: Enviar a string para a API aqui.
                 } else {
-                    Log.e("HomeViewModel", "Falha ao converter imagem")
+                    Log.e("HomeViewModel", "Falha ao obter bitmap da URI.")
+                    uiState = uiState.copy(isLoading = false)
                 }
             }
             uiState = uiState.copy(isLoading = false, capturedImageUri = null)
@@ -76,19 +82,20 @@ class HomeViewModel : ViewModel() {
         uiState = uiState.copy(showDialog = false, capturedImageUri = null)
     }
 
-    private suspend fun convertUriToBase64(context: Context, uri: Uri): String? {
-        return withContext(Dispatchers.IO) {
-            try {
-                val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-                val bytes = inputStream?.readBytes()
-                inputStream?.close()
-                bytes?.let {
-                    Base64.encodeToString(it, Base64.DEFAULT)
-                }
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Falha ao converter Uri para Base64", e)
-                null
+    private fun convertUriToBitmap(context: Context, uri: Uri): Bitmap? {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                @Suppress("DEPRECATION") android.provider.MediaStore.Images.Media.getBitmap(
+                    context.contentResolver,
+                    uri
+                )
             }
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Falha ao converter URI para Bitmap", e)
+            null
         }
     }
 }

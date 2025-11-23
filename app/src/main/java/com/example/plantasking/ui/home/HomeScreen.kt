@@ -22,15 +22,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -47,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -66,6 +61,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val uiState = viewModel.uiState
+    var showMoodDialog by remember { mutableStateOf(false) }
     var hasRequiredPermissions by remember {
         mutableStateOf(
             (ContextCompat.checkSelfPermission(
@@ -117,18 +113,23 @@ fun HomeScreen(
 
         if (uiState.showDialog) {
             val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
             ModalBottomSheet(
                 onDismissRequest = { viewModel.onDialogDismiss() }, sheetState = sheetState
             ) {
                 ActionMenuContent(onAnalyzeClick = {
-                    viewModel.onDialogPictured(context)
-                }, onSaveClick = { //TODO: Implementar funcionalidade "Ver Humor"
+                   // Todo: Conversa ainda a ser implementada
+                }, onSaveMoodClick = {
                     viewModel.onDialogPictured(context)
                 }, onDismiss = {
                     viewModel.onDialogDismiss()
                 })
             }
+        }
+        if (showMoodDialog && uiState.analysisResult != null) {
+            ViewMood(
+                onDismiss = { viewModel.onDialogDismiss() },
+                analysisText = uiState.analysisResult
+            )
         }
     }
 }
@@ -136,7 +137,7 @@ fun HomeScreen(
 @Composable
 private fun ActionMenuContent(
     onAnalyzeClick: () -> Unit,
-    onSaveClick: () -> Unit,
+    onSaveMoodClick: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -153,14 +154,15 @@ private fun ActionMenuContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             ActionMenuItem(
-                text = "\uD83D\uDCAC" +
-                        "\n Conversar",
+                drawableResId = R.drawable.talk,
+                text = "Conversar",
                 onClick = onAnalyzeClick,
                 modifier = Modifier.weight(1f)
             )
             ActionMenuItem(
+                drawableResId = R.drawable.mood,
                 text = "Ver Humor",
-                onClick = onSaveClick,
+                onClick = onSaveMoodClick,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -168,7 +170,8 @@ private fun ActionMenuContent(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         ActionMenuItem(
-            text = "Descartar",
+            drawableResId = R.drawable.photo,
+            text = "Tirar nova foto",
             onClick = onDismiss,
             modifier = modifier
                 .fillMaxWidth()
@@ -179,7 +182,7 @@ private fun ActionMenuContent(
 
 @Composable
 private fun ActionMenuItem(
-     text: String, onClick: () -> Unit, modifier: Modifier = Modifier
+    drawableResId: Int, text: String, onClick: () -> Unit, modifier: Modifier = Modifier
 ) {
 
     TextButton(
@@ -190,6 +193,11 @@ private fun ActionMenuItem(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
+            Image(
+                painter = painterResource(id = drawableResId),
+                contentDescription = text,
+                modifier = Modifier.size(48.dp)
+            )
             Text(text, style = MaterialTheme.typography.bodyLarge)
         }
     }
@@ -263,4 +271,28 @@ fun PermissionDeniedContent(
             Text("Conceder Permissões")
         }
     }
+}
+
+@Composable
+fun ViewMood(
+    onDismiss: () -> Unit, analysisText: String
+) {
+    AlertDialog(onDismissRequest = onDismiss, title = {
+        Text("Humor da Planta")
+    }, text = {
+        Text(analysisText)
+    }, confirmButton = {
+        TextButton(
+            onClick = onDismiss, modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("OK")
+        }
+    }, icon = {
+        Image(
+            painter = painterResource(id = R.drawable.mood),
+            contentDescription = null,
+            modifier = Modifier.size(32.dp)
+        )
+    })
+
 }
