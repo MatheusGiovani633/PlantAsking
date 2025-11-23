@@ -29,10 +29,11 @@ data class HomeUiState(
 class HomeViewModel : ViewModel() {
     var uiState by mutableStateOf(HomeUiState())
         private set
+
     fun onTakePicture(context: Context, imageCapture: ImageCapture) {
+        uiState = uiState.copy(isLoading = true, showDialog = false)
         val file = File.createTempFile("IMG_", ".jpg")
-        val outputOptions =
-            ImageCapture.OutputFileOptions.Builder(file).build()
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(context),
@@ -41,31 +42,32 @@ class HomeViewModel : ViewModel() {
                     outputFileResults.savedUri?.let { uri ->
                         uiState = uiState.copy(
                             capturedImageUri = uri,
+                            isLoading = false,
                             showDialog = true
                         )
                     }
                 }
+
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("HomeViewModel", "Erro ao salvar a foto.", exception)
+                    uiState = uiState.copy(isLoading = false)
                 }
-            }
-        )
+            })
     }
-
-
-    fun onDialogConfirm(context: Context) {
+    fun onDialogPictured(context: Context) {
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, showDialog = false)
             uiState.capturedImageUri?.let { uri ->
                 val base64String = convertUriToBase64(context, uri)
                 if (base64String != null) {
-                    Log.d("HomeViewModel", "Imagem convertida com sucesso: ${base64String.take(100)}")
-                    // TODO: Enviar a string para a API.
+                    Log.d(
+                        "HomeViewModel", "Imagem convertida com sucesso: ${base64String.take(500)}"
+                    )
+                    // TODO: Enviar a string para a API aqui.
                 } else {
-                    Log.e("HomeViewModel", "Falha ao converter imagem.")
+                    Log.e("HomeViewModel", "Falha ao converter imagem")
                 }
             }
-
             uiState = uiState.copy(isLoading = false, capturedImageUri = null)
         }
     }
