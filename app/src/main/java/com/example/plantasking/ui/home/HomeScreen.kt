@@ -61,7 +61,6 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val uiState = viewModel.uiState
-    var showMoodDialog by remember { mutableStateOf(false) }
     var hasRequiredPermissions by remember {
         mutableStateOf(
             (ContextCompat.checkSelfPermission(
@@ -117,7 +116,7 @@ fun HomeScreen(
                 onDismissRequest = { viewModel.onDialogDismiss() }, sheetState = sheetState
             ) {
                 ActionMenuContent(onAnalyzeClick = {
-                   // Todo: Conversa ainda a ser implementada
+                    // Todo: Conversa ainda a ser implementada
                 }, onSaveMoodClick = {
                     viewModel.onDialogPictured(context)
                 }, onDismiss = {
@@ -125,10 +124,9 @@ fun HomeScreen(
                 })
             }
         }
-        if (showMoodDialog && uiState.analysisResult != null) {
+        if (uiState.analysisResult != null) {
             ViewMood(
-                onDismiss = { viewModel.onDialogDismiss() },
-                analysisText = uiState.analysisResult
+                onDismiss = { viewModel.onDialogDismiss() }, analysisText = uiState.analysisResult
             )
         }
     }
@@ -275,12 +273,14 @@ fun PermissionDeniedContent(
 
 @Composable
 fun ViewMood(
-    onDismiss: () -> Unit, analysisText: String
+    onDismiss: () -> Unit,
+    analysisText: String
 ) {
     AlertDialog(onDismissRequest = onDismiss, title = {
         Text("Humor da Planta")
-    }, text = {
-        Text(analysisText)
+    },
+        text = {
+            Text(analysisText)
     }, confirmButton = {
         TextButton(
             onClick = onDismiss, modifier = Modifier.fillMaxWidth()
@@ -288,11 +288,34 @@ fun ViewMood(
             Text("OK")
         }
     }, icon = {
-        Image(
-            painter = painterResource(id = R.drawable.mood),
-            contentDescription = null,
-            modifier = Modifier.size(32.dp)
-        )
+        if (analysisText.contains("feliz")) {
+            Image(
+                painter = painterResource(id = R.drawable.moodhappy),
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
+            )
+        }
+        else if(analysisText.contains("doente")){
+            Image(
+                painter = painterResource(id = R.drawable.moodsick),
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
+            )
+        }
+        else if(analysisText.contains("triste")){
+            Image(
+                painter = painterResource(id = R.drawable.moodsad),
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
+            )
+        }else{
+            Image(
+                painter = painterResource(id = R.drawable.error),
+                contentDescription = null,
+                modifier = Modifier.size(50.dp)
+            )
+        }
+
     })
 
 }

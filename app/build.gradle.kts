@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
+    implementation(libs.androidx.ui.graphics)
 
     val cameraxVersion = "1.3.4"
     implementation("androidx.camera:camera-core:$cameraxVersion")

@@ -6,22 +6,17 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.util.Base64
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.decodeBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.plantasking.data.remote.PlantRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
 
 
 data class HomeUiState(
@@ -58,7 +53,6 @@ class HomeViewModel : ViewModel() {
                 }
             })
     }
-
     fun onDialogPictured(context: Context) {
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, showDialog = false)
@@ -74,12 +68,16 @@ class HomeViewModel : ViewModel() {
                     uiState = uiState.copy(isLoading = false)
                 }
             }
-            uiState = uiState.copy(isLoading = false, capturedImageUri = null)
+            uiState = uiState.copy(
+                isLoading = false, showDialog = true, capturedImageUri = null
+            )
         }
     }
 
     fun onDialogDismiss() {
-        uiState = uiState.copy(showDialog = false, capturedImageUri = null)
+        uiState = uiState.copy(
+            isLoading = false, analysisResult = null, showDialog = false, capturedImageUri = null
+        )
     }
 
     private fun convertUriToBitmap(context: Context, uri: Uri): Bitmap? {
@@ -89,8 +87,7 @@ class HomeViewModel : ViewModel() {
                 ImageDecoder.decodeBitmap(source)
             } else {
                 @Suppress("DEPRECATION") android.provider.MediaStore.Images.Media.getBitmap(
-                    context.contentResolver,
-                    uri
+                    context.contentResolver, uri
                 )
             }
         } catch (e: Exception) {
