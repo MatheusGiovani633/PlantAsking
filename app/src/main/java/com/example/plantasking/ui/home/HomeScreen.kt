@@ -115,7 +115,8 @@ fun HomeScreen(
             ModalBottomSheet(
                 onDismissRequest = { viewModel.onDialogDismiss() }, sheetState = sheetState
             ) {
-                ActionMenuContent(onAnalyzeClick = {
+                ActionMenuContent(
+                onAnalyzeClick = {
                     // Todo: Conversa ainda a ser implementada
                 }, onSaveMoodClick = {
                     viewModel.onDialogPictured(context)
