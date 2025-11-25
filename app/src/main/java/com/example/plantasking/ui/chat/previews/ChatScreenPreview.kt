@@ -25,24 +25,24 @@ enum class MessageAuthor {
 }
 
 data class Message(
-    val text: String,
-    val author: MessageAuthor
+    val text: String, val author: MessageAuthor
 )
 
-// Passo 2: Construir a visualização de uma única bolha de mensagem
+
 @Composable
 fun MessageBubble(message: Message) {
-    // Determina o alinhamento (esquerda para o BOT, direita para o USER)
-    val horizontalArrangement = if (message.author == MessageAuthor.USER) Arrangement.End else Arrangement.Start
 
-    // Determina a cor da bolha
+    val horizontalArrangement =
+        if (message.author == MessageAuthor.USER) Arrangement.End else Arrangement.Start
+
+
     val bubbleColor = if (message.author == MessageAuthor.USER) {
-        Color(0xFF075E54) // Verde escuro para o usuário
+        Color(0xFF075E54)
     } else {
-        Color(0xFF233138) // Cinza escuro para o bot
+        Color(0xFF233138)
     }
 
-    // Determina a forma dos cantos, para dar o efeito "WhatsApp"
+
     val bubbleShape = if (message.author == MessageAuthor.USER) {
         RoundedCornerShape(topStart = 12.dp, topEnd = 4.dp, bottomStart = 12.dp, bottomEnd = 12.dp)
     } else {
@@ -62,8 +62,7 @@ fun MessageBubble(message: Message) {
                 .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
             Text(
-                text = message.text,
-                color = Color.White
+                text = message.text, color = Color.White
             )
         }
     }
@@ -75,18 +74,21 @@ fun MessageBubble(message: Message) {
 )
 @Composable
 private fun ChatScreenPreview(modifier: Modifier = Modifier) {
-    // Passo 3: Criar a lista de mensagens MOCKADA (de exemplo)
+
     val messages = listOf(
         Message("Olá! Como posso te ajudar com sua planta hoje?", MessageAuthor.BOT),
         Message("Oi! As folhas dela estão meio amareladas...", MessageAuthor.USER),
-        Message("Entendi. Folhas amareladas podem indicar algumas coisas. Qual foi a última vez que você a regou?", MessageAuthor.BOT),
+        Message(
+            "Entendi. Folhas amareladas podem indicar algumas coisas. Qual foi a última vez que você a regou?",
+            MessageAuthor.BOT
+        ),
         Message("Acho que foi anteontem.", MessageAuthor.USER)
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0E2825)) // Verde bem escuro
+            .background(Color(0xF80E2825))
             .drawBehind {
                 val dotColor = Color(0xFF19B27A).copy(alpha = 0.08f)
                 val dotRadius = 1.dp.toPx()
@@ -101,16 +103,13 @@ private fun ChatScreenPreview(modifier: Modifier = Modifier) {
                         )
                     }
                 }
-            }
-    ) {
-        // Passo 4: Usar a lista mockada na LazyColumn
+            }) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 8.dp),
-            reverseLayout = true // Mensagens novas aparecem por baixo e o scroll começa de baixo
+                .padding(top = 8.dp), reverseLayout = true
         ) {
-            // A lista é invertida para funcionar corretamente com o reverseLayout
+
             items(messages.reversed()) { message ->
                 MessageBubble(message = message)
             }
