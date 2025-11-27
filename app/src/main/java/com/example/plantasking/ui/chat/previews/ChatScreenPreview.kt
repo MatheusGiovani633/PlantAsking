@@ -13,14 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -31,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.example.plantasking.R
@@ -38,9 +38,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 
 enum class MessageAuthor {
@@ -69,7 +69,7 @@ fun TextChat(onMessageSend: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
             value = text,
@@ -83,8 +83,8 @@ fun TextChat(onMessageSend: (String) -> Unit) {
             },
             modifier = Modifier
                 .weight(0.7f)
-                .padding(top = 15.dp, start = 16.dp, end = 16.dp)
-                .height(75.dp),
+                .padding(top = 15.dp, start = 16.dp),
+            shape = RoundedCornerShape(percent = 15),
             colors = textFieldsColors
         )
         IconButton(
@@ -95,10 +95,13 @@ fun TextChat(onMessageSend: (String) -> Unit) {
                 }
             },
             modifier = Modifier
-                .padding(top = 15.dp, end = 16.dp)
-                .height(65.dp)
-                .background(Color.White.copy(alpha = 0.1f)),
-                enabled = text.isNotBlank(),
+                .padding(start = 15.dp, top = 15.dp, end = 16.dp)
+                .width(60.dp)
+                .height(60.dp)
+                .background(
+                    Color(0xC6FF9100), shape = RoundedCornerShape(percent = 50)
+                ),
+            enabled = text.isNotBlank(),
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,
@@ -170,11 +173,56 @@ fun MessageBubble(message: Message) {
     }
 }
 
+@Composable
+fun ChatMenu(
+    onMenuOpen: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(65.dp)
+            .background(Color(0x23F6F049)),
+    ) {
+        IconButton(
+            onClick = onMenuOpen, modifier = Modifier
+                .weight(0.15f)
+                .fillMaxHeight()
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Enviar Mensagem",
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+        Image(
+            painter = painterResource(id = R.drawable.iconphoto),
+            contentDescription = "Plant",
+            modifier = Modifier
+                .size(40.dp)
+                .align(Alignment.CenterVertically),
+
+        )
+        Text(
+            text = "Sua amiga planta",
+            modifier = Modifier
+                .weight(0.5f)
+                .fillMaxHeight()
+                .wrapContentHeight(align = Alignment.CenterVertically)
+                .padding(start = 15.dp),
+            color = Color.White,
+            fontSize = 18.sp
+        )
+    }
+
+
+}
+
 @Preview(
     name = "Tela de Chat", showBackground = true
 )
 @Composable
-private fun ChatScreenPreview(modifier: Modifier = Modifier) {
+private fun ChatScreenPreview() {
     val messages = listOf(
         Message("Olá! Como posso te ajudar com sua planta hoje?", MessageAuthor.BOT),
         Message("Oi! As folhas dela estão meio amareladas...", MessageAuthor.USER),
@@ -202,16 +250,15 @@ private fun ChatScreenPreview(modifier: Modifier = Modifier) {
                         )
                     }
                 }
-            }
-    ) {
+            }) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            ChatMenu(onMenuOpen = {})
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 8.dp),
-                reverseLayout = true
+                    .padding(top = 8.dp), reverseLayout = true
             ) {
                 items(messages.reversed()) { message ->
                     MessageBubble(message = message)

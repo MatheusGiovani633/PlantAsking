@@ -53,7 +53,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
-
+    implementation("br.com.devsrsouza.compose.icons:font-awesome:1.1.1")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

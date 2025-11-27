@@ -57,7 +57,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()
+    onInitChat: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel(),
 ) {
     val context = LocalContext.current
     val uiState = viewModel.uiState
@@ -116,8 +118,8 @@ fun HomeScreen(
                 onDismissRequest = { viewModel.onDialogDismiss() }, sheetState = sheetState
             ) {
                 ActionMenuContent(
-                onAnalyzeClick = {
-                    // Todo: Conversa ainda a ser implementada
+                onInitChat = {
+                    viewModel.onDialogDismiss()
                 }, onSaveMoodClick = {
                     viewModel.onDialogPictured(context)
                 }, onDismiss = {
@@ -135,10 +137,10 @@ fun HomeScreen(
 
 @Composable
 private fun ActionMenuContent(
-    onAnalyzeClick: () -> Unit,
     onSaveMoodClick: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onInitChat: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -155,7 +157,7 @@ private fun ActionMenuContent(
             ActionMenuItem(
                 drawableResId = R.drawable.talk,
                 text = "Conversar",
-                onClick = onAnalyzeClick,
+                onClick = onInitChat,
                 modifier = Modifier.weight(1f)
             )
             ActionMenuItem(

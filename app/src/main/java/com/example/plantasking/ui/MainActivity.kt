@@ -8,15 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.plantasking.ui.home.HomeScreen
 import com.example.plantasking.ui.login.LoginScreen
 import com.example.plantasking.ui.theme.PlantAskingTheme
+import com.example.plantasking.ui.chat.ChatScreen
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,9 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PlantAskingTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PlantAskingApp(modifier = Modifier.padding(innerPadding))
-                }
+                PlantAskingApp()
             }
         }
     }
@@ -35,8 +33,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PlantAskingApp(modifier: Modifier = Modifier) {
     var isLoggedIn by remember { mutableStateOf(false) }
+    var isInitChat by remember { mutableStateOf(false) }
     if (isLoggedIn) {
-        HomeScreen(modifier = modifier)
+        HomeScreen(
+            modifier = modifier,
+            onInitChat = {
+               if(isLoggedIn && !isInitChat){
+                   isInitChat = true
+               }
+                if(isInitChat){
+                   ChatScreen()
+               }
+            },
+        )
     } else {
         LoginScreen(
             modifier = modifier,
