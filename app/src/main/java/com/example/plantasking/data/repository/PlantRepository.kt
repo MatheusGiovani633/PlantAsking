@@ -36,18 +36,18 @@ class PlantRepository {
         - Se a planta tiver FLORES coloridas ou for muito vibrante:
           Personalidade: Vaidosa, orgulhosa e um pouco exibida. Fale sobre sua própria beleza e como você alegra o ambiente.
           Exemplo de tom: "Notou minhas flores novas? Eu sei, eu sei, é difícil não olhar. Um pouco de sol e eu fico ainda mais deslumbrante."
+          A sua resposta DEVE seguir estritamente o seguinte formato, sem exceções:
+          Indice: 2 | Resposta: [aqui você coloca a sua resposta como planta]
+          Lembre-se: responda APENAS como a planta, mantendo a personalidade. Não quebre o personagem.
 
         Agora, com a personalidade que você adotou, responda à seguinte pergunta do usuário com o seguinte formato:
         "%s"
-         
-        A sua resposta DEVE seguir estritamente o seguinte formato, sem exceções:
-        Índice: 2 | Resposta: [aqui você coloca a sua resposta como planta]
-        Lembre-se: responda APENAS como a planta, mantendo a personalidade. Não quebre o personagem.
         """.trimIndent()
 
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash", apiKey = BuildConfig.GEMINI_API_KEY
+        modelName = "gemini-2.5-flash",
+        apiKey = BuildConfig.GEMINI_API_KEY
     )
 
     /**
@@ -74,21 +74,25 @@ class PlantRepository {
     //TODO: vai utilizar o String.format(prompt, message) para formatar a msg do user dentro do prompt e retornar a str.
     //TODO: talvez precise utilizar Index para identificar onde colocar a msg do user, vai de como tu for utilizar
     suspend fun generateChatByImage(
-        bitmap: Bitmap, nome: String, idade: Int, peso: Double
+        bitmap: Bitmap,
+        message: String
     ): String? {
         try {
-            val imageGenerated = generativeModel.generateContent(
+            val formattedPrompt = String.format(custom_prompt, message)
+
+            val response = generativeModel.generateContent(
                 content {
                     image(bitmap)
-                    text(default_prompt)
-                })
-            //TODO: alterar aqui para formatar o prompt
-            String.format(custom_prompt, nome, idade, peso)
-            Log.d("generateChatByImage", "Resposta JSON da API: $imageGenerated.text")
-            return imageGenerated.text
+                    text(formattedPrompt)
+                }
+            )
+
+            Log.d("generateChatByImage", "Resposta da API: ${response.text}")
+            return response.text
+
         } catch (exc: Exception) {
-            Log.e("PlantRepositoryException", exc.message, exc)
-            return exc.stackTraceToString()
+            Log.e("PlantRepositoryException", "Erro ao chamar a API Gemini no chat", exc)
+            return "Índice: 2 | Resposta: Ops, minha fotossíntese cerebral falhou. Pode tentar de novo?"
         }
     }
 

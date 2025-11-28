@@ -41,7 +41,8 @@ fun PlantAsKingApp(modifier: Modifier = Modifier) {
         )
     } else if (isInitChat) {
         ChatScreen(
-            onBackClicked = { isInitChat = false }
+            onBackClicked = { isInitChat = false },
+            plantImageUri = null
         )
     } else {
         HomeScreen(

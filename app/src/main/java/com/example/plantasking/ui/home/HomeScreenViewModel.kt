@@ -1,10 +1,7 @@
 package com.example.plantasking.ui.home
-
+import com.example.plantasking.util.convertUriToBitmap
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -23,7 +20,8 @@ data class HomeUiState(
     val showDialog: Boolean = false,
     val analysisResult: String? = null,
     val capturedImageUri: Uri? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val messageApiRequest: String? = null,
 )
 
 
@@ -46,7 +44,6 @@ class HomeViewModel : ViewModel() {
                         )
                     }
                 }
-
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("HomeViewModel", "Erro ao salvar a foto.", exception)
                     uiState = uiState.copy(isLoading = false)
@@ -59,9 +56,10 @@ class HomeViewModel : ViewModel() {
             uiState.capturedImageUri?.let { uri ->
                 val bitmap = convertUriToBitmap(context, uri)
                 if (bitmap != null) {
-                    val analysisJson = PlantRepository().analyzeImage(bitmap)
+                    val analysisApiRequest = PlantRepository().analyzeImage(bitmap = bitmap)
+                    val messageApiRequest = PlantRepository().generateChatByImage(message = "Olá!", bitmap = bitmap)
                     uiState = uiState.copy(
-                        isLoading = false, analysisResult = analysisJson, showDialog = true
+                        isLoading = false, analysisResult = analysisApiRequest, showDialog = true, messageApiRequest = messageApiRequest
                     )
                 } else {
                     Log.e("HomeViewModel", "Falha ao obter bitmap da URI.")
@@ -74,25 +72,17 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun onDialogDismiss() {
+    fun onDialogDismissWithImageSaved() {
+        uiState = uiState.copy(
+            isLoading = false,
+            analysisResult = null,
+            showDialog = false
+        )
+    }
+    fun onDialogDismissAndClearImage() {
         uiState = uiState.copy(
             isLoading = false, analysisResult = null, showDialog = false, capturedImageUri = null
         )
     }
 
-    private fun convertUriToBitmap(context: Context, uri: Uri): Bitmap? {
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(context.contentResolver, uri)
-                ImageDecoder.decodeBitmap(source)
-            } else {
-                @Suppress("DEPRECATION") android.provider.MediaStore.Images.Media.getBitmap(
-                    context.contentResolver, uri
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("HomeViewModel", "Falha ao converter URI para Bitmap", e)
-            null
-        }
-    }
 }

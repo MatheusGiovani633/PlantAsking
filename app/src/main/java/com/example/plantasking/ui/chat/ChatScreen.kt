@@ -1,5 +1,7 @@
 package com.example.plantasking.ui.chat
 
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +28,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +39,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.plantasking.R
 import com.example.plantasking.data.enum.Author
+import androidx.compose.material3.CircularProgressIndicator
+import com.example.plantasking.util.convertUriToBitmap
 
 
 data class Message(
@@ -49,17 +57,20 @@ data class Message(
 
 @Composable
 fun ChatScreen(
-    onBackClicked: () -> Unit
+    plantImageUri: Uri?,
+    onBackClicked: () -> Unit,
+    chatViewModel: ChatViewModel = viewModel()
 ) {
-    val messages = listOf(
-        Message("Olá! Como posso te ajudar com sua planta hoje?", Author.BOT),
-        Message("Oi! As folhas dela estão meio amareladas...", Author.USER),
-        Message(
-            "Entendi. Folhas amareladas podem indicar algumas coisas. Qual foi a última vez que você a regou?",
-            Author.BOT
-        ),
-        Message("Acho que foi anteontem.", Author.USER)
-    )
+    val uiState by chatViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var plantBitmap by remember(plantImageUri) {
+        mutableStateOf<Bitmap?>(null)
+    }
+    LaunchedEffect(plantImageUri) {
+        if (plantImageUri != null) {
+            plantBitmap = convertUriToBitmap(context, plantImageUri)
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -92,11 +103,30 @@ fun ChatScreen(
                     .weight(1f)
                     .padding(top = 8.dp), reverseLayout = true
             ) {
-                items(messages.reversed()) { message ->
+                if (uiState.isLoading) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp)
+                                            .padding(start = 50.dp)
+                            )
+                        }
+                    }
+                }
+                items(uiState.messages.reversed()) { message ->
                     MessageBubble(message = message)
                 }
             }
-            TextChat(onMessageSend = {})
+            TextChat(
+                onMessageSend = { messageText ->
+                    chatViewModel.sendMessage(messageText, plantBitmap)
+                }
+            )
         }
     }
 }

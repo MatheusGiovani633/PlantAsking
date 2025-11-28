@@ -115,21 +115,22 @@ fun HomeScreen(
         if (uiState.showDialog) {
             val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ModalBottomSheet(
-                onDismissRequest = { viewModel.onDialogDismiss() }, sheetState = sheetState
+                onDismissRequest = { viewModel.onDialogDismissAndClearImage() }, sheetState = sheetState
             ) {
                 ActionMenuContent(
                 onInitChat = {
+                    viewModel.onDialogDismissWithImageSaved()
                     onInitChat()
                 }, onSaveMoodClick = {
                     viewModel.onDialogPictured(context)
                 }, onDismiss = {
-                    viewModel.onDialogDismiss()
+                    viewModel.onDialogDismissAndClearImage()
                 })
             }
         }
         if (uiState.analysisResult != null) {
             ViewMood(
-                onDismiss = { viewModel.onDialogDismiss() }, analysisText = uiState.analysisResult
+                onDismiss = { viewModel.onDialogDismissAndClearImage() }, analysisText = uiState.analysisResult
             )
         }
     }
