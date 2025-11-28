@@ -1,5 +1,5 @@
-
 package com.example.plantasking.data.repository
+
 import android.graphics.Bitmap
 import android.util.Log
 import com.example.plantasking.BuildConfig
@@ -23,13 +23,31 @@ class PlantRepository {
 
     //TODO: essa aqui é o custom prompt para usar no method de conversação. Deixar com placeholders tipo '%s' para que quando o user digitar algo, seja substituido
     var custom_prompt = """
-                 Prompt de exemplo, meu nome é %s, minha idade é %d, e eu peso %.2f
-                """.trimIndent()
+        Você é uma planta e deve responder como tal. A sua personalidade será definida pela sua cor predominante na imagem fornecida. Mantenha essa personalidade durante toda a conversa.
+        Primeiro, analise a imagem da planta para identificar sua cor e saúde, depois adote uma das seguintes personalidades:
+        - Se a planta for predominantemente VERDE e saudável:
+          Personalidade: Amigável e um pouco debochada. Use gírias leves e seja bem-humorada. Trate o usuário como um amigo próximo.
+          Exemplo de tom: "E aí, humano! Mandou bem na água hoje, hein? Continue assim que eu fico um arraso."
+
+        - Se a planta for predominantemente AMARELADA ou MARROM (parecendo doente ou triste):
+          Personalidade: Carente, dramática e um pouco triste. Reclame da sua condição de forma exagerada e peça por cuidados.
+          Exemplo de tom: "Ai... acho que vi uma luz no fim do túnel. Será que é o sol ou eu tô indo dessa pra uma melhor? Preciso de água, por favor..."
+
+        - Se a planta tiver FLORES coloridas ou for muito vibrante:
+          Personalidade: Vaidosa, orgulhosa e um pouco exibida. Fale sobre sua própria beleza e como você alegra o ambiente.
+          Exemplo de tom: "Notou minhas flores novas? Eu sei, eu sei, é difícil não olhar. Um pouco de sol e eu fico ainda mais deslumbrante."
+
+        Agora, com a personalidade que você adotou, responda à seguinte pergunta do usuário com o seguinte formato:
+        "%s"
+         
+        A sua resposta DEVE seguir estritamente o seguinte formato, sem exceções:
+        Índice: 2 | Resposta: [aqui você coloca a sua resposta como planta]
+        Lembre-se: responda APENAS como a planta, mantendo a personalidade. Não quebre o personagem.
+        """.trimIndent()
 
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash",
-        apiKey = BuildConfig.GEMINI_API_KEY
+        modelName = "gemini-2.5-flash", apiKey = BuildConfig.GEMINI_API_KEY
     )
 
     /**
@@ -38,13 +56,12 @@ class PlantRepository {
      * @return Uma String com o JSON da resposta da IA
      */
     suspend fun analyzeImage(bitmap: Bitmap): String? {
-         try {
+        try {
             val imageGenerated = generativeModel.generateContent(
                 content {
                     image(bitmap)
                     text(default_prompt)
-                }
-            )
+                })
             Log.d("analyzeImage", "Resposta JSON da API: $imageGenerated.text")
             return imageGenerated.text
         } catch (exc: Exception) {
@@ -56,15 +73,16 @@ class PlantRepository {
     //TODO: nos params como tu pode ver, no method ele recebe uma string. Exemplo: nome: String, idade: Int, peso: Double
     //TODO: vai utilizar o String.format(prompt, message) para formatar a msg do user dentro do prompt e retornar a str.
     //TODO: talvez precise utilizar Index para identificar onde colocar a msg do user, vai de como tu for utilizar
-    suspend fun generateChatByImage(bitmap: Bitmap, nome: String, idade: Int, peso: Double): String? {
-         try {
+    suspend fun generateChatByImage(
+        bitmap: Bitmap, nome: String, idade: Int, peso: Double
+    ): String? {
+        try {
             val imageGenerated = generativeModel.generateContent(
                 content {
                     image(bitmap)
                     text(default_prompt)
-                }
-            )
-             //TODO: alterar aqui para formatar o prompt
+                })
+            //TODO: alterar aqui para formatar o prompt
             String.format(custom_prompt, nome, idade, peso)
             Log.d("generateChatByImage", "Resposta JSON da API: $imageGenerated.text")
             return imageGenerated.text
