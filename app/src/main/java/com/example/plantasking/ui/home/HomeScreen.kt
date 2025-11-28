@@ -57,7 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onInitChat: @Composable () -> Unit,
+    onInitChat: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(),
 ) {
@@ -119,7 +119,7 @@ fun HomeScreen(
             ) {
                 ActionMenuContent(
                 onInitChat = {
-                    viewModel.onDialogDismiss()
+                    onInitChat()
                 }, onSaveMoodClick = {
                     viewModel.onDialogPictured(context)
                 }, onDismiss = {
@@ -276,14 +276,12 @@ fun PermissionDeniedContent(
 
 @Composable
 fun ViewMood(
-    onDismiss: () -> Unit,
-    analysisText: String
+    onDismiss: () -> Unit, analysisText: String
 ) {
     AlertDialog(onDismissRequest = onDismiss, title = {
         Text("Humor da Planta")
-    },
-        text = {
-            Text(analysisText)
+    }, text = {
+        Text(analysisText)
     }, confirmButton = {
         TextButton(
             onClick = onDismiss, modifier = Modifier.fillMaxWidth()
@@ -297,21 +295,19 @@ fun ViewMood(
                 contentDescription = null,
                 modifier = Modifier.size(50.dp)
             )
-        }
-        else if(analysisText.contains("doente")){
+        } else if (analysisText.contains("doente")) {
             Image(
                 painter = painterResource(id = R.drawable.moodsick),
                 contentDescription = null,
                 modifier = Modifier.size(50.dp)
             )
-        }
-        else if(analysisText.contains("triste")){
+        } else if (analysisText.contains("triste")) {
             Image(
                 painter = painterResource(id = R.drawable.moodsad),
                 contentDescription = null,
                 modifier = Modifier.size(50.dp)
             )
-        }else{
+        } else {
             Image(
                 painter = painterResource(id = R.drawable.error),
                 contentDescription = null,

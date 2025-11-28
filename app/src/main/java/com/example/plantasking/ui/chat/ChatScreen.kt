@@ -48,6 +48,60 @@ data class Message(
 )
 
 @Composable
+fun ChatScreen(
+    onBackClicked: () -> Unit
+) {
+    val messages = listOf(
+        Message("Olá! Como posso te ajudar com sua planta hoje?", Author.BOT),
+        Message("Oi! As folhas dela estão meio amareladas...", Author.USER),
+        Message(
+            "Entendi. Folhas amareladas podem indicar algumas coisas. Qual foi a última vez que você a regou?",
+            Author.BOT
+        ),
+        Message("Acho que foi anteontem.", Author.USER)
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xF80E2825))
+            .drawBehind {
+                val dotColor = Color(0xFF19B27A).copy(alpha = 0.08f)
+                val dotRadius = 1.dp.toPx()
+                val dotSpacing = 24.dp.toPx()
+
+                for (x in 0..size.width.toInt() step dotSpacing.toInt()) {
+                    for (y in 0..size.height.toInt() step dotSpacing.toInt()) {
+                        drawCircle(
+                            color = dotColor,
+                            radius = dotRadius,
+                            center = androidx.compose.ui.geometry.Offset(x.toFloat(), y.toFloat())
+                        )
+                    }
+                }
+            }) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            ChatMenu(
+                onBackClicked = {
+                    onBackClicked()
+                }
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 8.dp), reverseLayout = true
+            ) {
+                items(messages.reversed()) { message ->
+                    MessageBubble(message = message)
+                }
+            }
+            TextChat(onMessageSend = {})
+        }
+    }
+}
+
+@Composable
 fun TextChat(onMessageSend: (String) -> Unit) {
     var text by remember { mutableStateOf("") }
     val textFieldsColors = OutlinedTextFieldDefaults.colors(
@@ -181,8 +235,7 @@ fun ChatMenu(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            onClick = onBackClicked,
-            modifier = Modifier
+            onClick = onBackClicked, modifier = Modifier
                 .weight(0.15f)
                 .fillMaxHeight()
         ) {
@@ -216,51 +269,3 @@ fun ChatMenu(
 
 }
 
-
-@Composable
-fun ChatScreen() {
-    val messages = listOf(
-        Message("Olá! Como posso te ajudar com sua planta hoje?", Author.BOT),
-        Message("Oi! As folhas dela estão meio amareladas...", Author.USER),
-        Message(
-            "Entendi. Folhas amareladas podem indicar algumas coisas. Qual foi a última vez que você a regou?",
-            Author.BOT
-        ),
-        Message("Acho que foi anteontem.", Author.USER)
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xF80E2825))
-            .drawBehind {
-                val dotColor = Color(0xFF19B27A).copy(alpha = 0.08f)
-                val dotRadius = 1.dp.toPx()
-                val dotSpacing = 24.dp.toPx()
-
-                for (x in 0..size.width.toInt() step dotSpacing.toInt()) {
-                    for (y in 0..size.height.toInt() step dotSpacing.toInt()) {
-                        drawCircle(
-                            color = dotColor,
-                            radius = dotRadius,
-                            center = androidx.compose.ui.geometry.Offset(x.toFloat(), y.toFloat())
-                        )
-                    }
-                }
-            }) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            ChatMenu(onBackClicked = {})
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 8.dp), reverseLayout = true
-            ) {
-                items(messages.reversed()) { message ->
-                    MessageBubble(message = message)
-                }
-            }
-            TextChat(onMessageSend = {})
-        }
-    }
-}

@@ -34,22 +34,21 @@ class MainActivity : ComponentActivity() {
 fun PlantAsKingApp(modifier: Modifier = Modifier) {
     var isLoggedIn by remember { mutableStateOf(false) }
     var isInitChat by remember { mutableStateOf(false) }
-    if (isLoggedIn) {
-        HomeScreen(
-            modifier = modifier,
-            onInitChat = {
-               if(isLoggedIn && !isInitChat){
-                   isInitChat = true
-               }
-                if(isInitChat){
-                   ChatScreen()
-               }
-            },
-        )
-    } else {
+    if (!isLoggedIn) {
         LoginScreen(
             modifier = modifier,
             onLoginSuccess = { isLoggedIn = true }
+        )
+    } else if (isInitChat) {
+        ChatScreen(
+            onBackClicked = { isInitChat = false }
+        )
+    } else {
+        HomeScreen(
+            modifier = modifier,
+            onInitChat = {
+                isInitChat = true
+            },
         )
     }
 }
