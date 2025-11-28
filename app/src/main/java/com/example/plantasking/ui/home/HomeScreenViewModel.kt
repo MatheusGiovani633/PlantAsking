@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.plantasking.data.remote.PlantRepository
+import com.example.plantasking.data.repository.PlantRepository
 import kotlinx.coroutines.launch
 import java.io.File
 

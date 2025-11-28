@@ -33,22 +33,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import com.example.plantasking.R
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.plantasking.R
+import com.example.plantasking.data.enum.Author
 
-
-enum class MessageAuthor {
-    USER, BOT
-}
 
 data class Message(
-    val text: String, val author: MessageAuthor
+    val text: String, val author: Author
 )
 
 @Composable
@@ -116,14 +112,14 @@ fun TextChat(onMessageSend: (String) -> Unit) {
 @Composable
 fun MessageBubble(message: Message) {
     val horizontalArrangement =
-        if (message.author == MessageAuthor.USER) Arrangement.End else Arrangement.Start
+        if (message.author == Author.USER) Arrangement.End else Arrangement.Start
 
-    val bubbleColor = if (message.author == MessageAuthor.USER) {
+    val bubbleColor = if (message.author == Author.USER) {
         Color(0x7CF6F049)
     } else {
         Color(0xC6FF9100)
     }
-    val bubbleShape = if (message.author == MessageAuthor.USER) {
+    val bubbleShape = if (message.author == Author.USER) {
         RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 12.dp, bottomEnd = 20.dp)
     } else {
         RoundedCornerShape(topStart = 0.dp, topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 12.dp)
@@ -135,7 +131,7 @@ fun MessageBubble(message: Message) {
         horizontalArrangement = horizontalArrangement
     ) {
 
-        if (message.author == MessageAuthor.BOT) {
+        if (message.author == Author.BOT) {
             Image(
                 painter = painterResource(id = R.drawable.iconphoto),
                 contentDescription = "Plant",
@@ -224,13 +220,13 @@ fun ChatMenu(
 @Composable
 fun ChatScreen() {
     val messages = listOf(
-        Message("Olá! Como posso te ajudar com sua planta hoje?", MessageAuthor.BOT),
-        Message("Oi! As folhas dela estão meio amareladas...", MessageAuthor.USER),
+        Message("Olá! Como posso te ajudar com sua planta hoje?", Author.BOT),
+        Message("Oi! As folhas dela estão meio amareladas...", Author.USER),
         Message(
             "Entendi. Folhas amareladas podem indicar algumas coisas. Qual foi a última vez que você a regou?",
-            MessageAuthor.BOT
+            Author.BOT
         ),
-        Message("Acho que foi anteontem.", MessageAuthor.USER)
+        Message("Acho que foi anteontem.", Author.USER)
     )
     Box(
         modifier = Modifier

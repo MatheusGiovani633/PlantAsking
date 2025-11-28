@@ -24,14 +24,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PlantAskingTheme {
-                PlantAskingApp()
+                PlantAsKingApp()
             }
         }
     }
 }
 
 @Composable
-fun PlantAskingApp(modifier: Modifier = Modifier) {
+fun PlantAsKingApp(modifier: Modifier = Modifier) {
     var isLoggedIn by remember { mutableStateOf(false) }
     var isInitChat by remember { mutableStateOf(false) }
     if (isLoggedIn) {
@@ -58,6 +58,6 @@ fun PlantAskingApp(modifier: Modifier = Modifier) {
 @Composable
 fun DefaultPreview() {
     PlantAskingTheme {
-        PlantAskingApp()
+        PlantAsKingApp()
     }
 }
