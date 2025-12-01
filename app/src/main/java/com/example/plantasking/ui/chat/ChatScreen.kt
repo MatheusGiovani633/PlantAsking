@@ -57,19 +57,15 @@ data class Message(
 
 @Composable
 fun ChatScreen(
-    plantImageUri: Uri?,
     onBackClicked: () -> Unit,
+    plantImageUri: Uri?,
     chatViewModel: ChatScreenViewModel = viewModel()
 ) {
     val uiState by chatViewModel.uiState.collectAsState()
     val context = LocalContext.current
-    var plantBitmap by remember(plantImageUri) {
-        mutableStateOf<Bitmap?>(null)
-    }
     LaunchedEffect(plantImageUri) {
-        if (plantImageUri != null && plantBitmap == null) {
+        if (plantImageUri != null) {
             val bitmap = convertUriToBitmap(context, plantImageUri)
-            plantBitmap = bitmap
             chatViewModel.setPlantImage(bitmap)
         }
     }

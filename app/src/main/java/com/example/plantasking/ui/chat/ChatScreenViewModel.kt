@@ -24,9 +24,7 @@ class ChatScreenViewModel : ViewModel() {
 
 
     fun setPlantImage(bitmap: Bitmap?) {
-        if (this.plantBitmap == null) {
-            this.plantBitmap = bitmap
-        }
+        this.plantBitmap = bitmap
     }
     fun sendMessage(userMessage: String) {
         if (plantBitmap == null) {

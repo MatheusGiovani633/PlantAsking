@@ -2,6 +2,7 @@
 
 package com.example.plantasking.ui
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,8 +16,6 @@ import com.example.plantasking.ui.home.HomeScreen
 import com.example.plantasking.ui.login.LoginScreen
 import com.example.plantasking.ui.theme.PlantAskingTheme
 import com.example.plantasking.ui.chat.ChatScreen
-
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +33,9 @@ class MainActivity : ComponentActivity() {
 fun PlantAsKingApp(modifier: Modifier = Modifier) {
     var isLoggedIn by remember { mutableStateOf(false) }
     var isInitChat by remember { mutableStateOf(false) }
+
+    var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
+
     if (!isLoggedIn) {
         LoginScreen(
             modifier = modifier,
@@ -42,12 +44,13 @@ fun PlantAsKingApp(modifier: Modifier = Modifier) {
     } else if (isInitChat) {
         ChatScreen(
             onBackClicked = { isInitChat = false },
-            plantImageUri = null
+            plantImageUri = capturedImageUri
         )
     } else {
         HomeScreen(
             modifier = modifier,
-            onInitChat = {
+            onInitChat = { imageUri ->
+                capturedImageUri = imageUri
                 isInitChat = true
             },
         )

@@ -1,6 +1,7 @@
 package com.example.plantasking.ui.home
 
 import android.Manifest
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,7 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onInitChat: () -> Unit,
+    onInitChat: (Uri?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(),
 ) {
@@ -122,7 +123,7 @@ fun HomeScreen(
                 ActionMenuContent(
                 onInitChat = {
                     viewModel.onDialogDismissWithImageSaved()
-                    onInitChat()
+                    onInitChat(uiState.capturedImageUri)
                 }, onSaveMoodClick = {
                     viewModel.onDialogPictured(context)
                 }, onDismiss = {

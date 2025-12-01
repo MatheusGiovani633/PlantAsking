@@ -57,9 +57,8 @@ class HomeViewModel : ViewModel() {
                 val bitmap = convertUriToBitmap(context, uri)
                 if (bitmap != null) {
                     val analysisApiRequest = PlantRepository().analyzeImage(bitmap = bitmap)
-                    val messageApiRequest = PlantRepository().generateChatByImage(message = "Olá!", bitmap = bitmap)
                     uiState = uiState.copy(
-                        isLoading = false, analysisResult = analysisApiRequest, showDialog = true, messageApiRequest = messageApiRequest
+                        isLoading = false, analysisResult = analysisApiRequest, showDialog = true
                     )
                 } else {
                     Log.e("HomeViewModel", "Falha ao obter bitmap da URI.")
