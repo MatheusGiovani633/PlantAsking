@@ -73,6 +73,7 @@ fun ChatScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xF80E2825))
+            .padding(bottom = 80.dp)
             .drawBehind {
                 val dotColor = Color(0xFF19B27A).copy(alpha = 0.08f)
                 val dotRadius = 1.dp.toPx()

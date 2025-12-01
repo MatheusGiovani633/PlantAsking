@@ -1,5 +1,3 @@
-// C:/.../PlantAsking/app/src/main/java/com/example/plantasking/MainActivity.kt
-
 package com.example.plantasking.ui
 
 import android.net.Uri
