@@ -59,7 +59,7 @@ data class Message(
 fun ChatScreen(
     plantImageUri: Uri?,
     onBackClicked: () -> Unit,
-    chatViewModel: ChatViewModel = viewModel()
+    chatViewModel: ChatScreenViewModel = viewModel()
 ) {
     val uiState by chatViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -67,8 +67,10 @@ fun ChatScreen(
         mutableStateOf<Bitmap?>(null)
     }
     LaunchedEffect(plantImageUri) {
-        if (plantImageUri != null) {
-            plantBitmap = convertUriToBitmap(context, plantImageUri)
+        if (plantImageUri != null && plantBitmap == null) {
+            val bitmap = convertUriToBitmap(context, plantImageUri)
+            plantBitmap = bitmap
+            chatViewModel.setPlantImage(bitmap)
         }
     }
     Box(
@@ -124,15 +126,17 @@ fun ChatScreen(
             }
             TextChat(
                 onMessageSend = { messageText ->
-                    chatViewModel.sendMessage(messageText, plantBitmap)
-                }
+                    chatViewModel.sendMessage(messageText)
+                },
             )
         }
     }
 }
 
 @Composable
-fun TextChat(onMessageSend: (String) -> Unit) {
+fun TextChat(
+    onMessageSend: (String) -> Unit,
+) {
     var text by remember { mutableStateOf("") }
     val textFieldsColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = Color.White,

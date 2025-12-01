@@ -88,9 +88,11 @@ fun HomeScreen(
     ) {
         if (hasRequiredPermissions) {
             CameraPreview(
-                modifier = Modifier.fillMaxSize(), onTakePictureClick = { imageCapture ->
+                modifier = Modifier.fillMaxSize(),
+                onTakePictureClick = { imageCapture ->
                     viewModel.onTakePicture(context, imageCapture)
-                })
+                }
+            )
         } else {
             PermissionDeniedContent(
                 onRequestPermission = {
@@ -290,19 +292,19 @@ fun ViewMood(
             Text("OK")
         }
     }, icon = {
-        if (analysisText.contains("feliz")) {
+        if (analysisText.contains("feliz") || analysisText.contains("Feliz")) {
             Image(
                 painter = painterResource(id = R.drawable.moodhappy),
                 contentDescription = null,
                 modifier = Modifier.size(50.dp)
             )
-        } else if (analysisText.contains("doente")) {
+        } else if (analysisText.contains("doente") ||analysisText.contains("Doente")) {
             Image(
                 painter = painterResource(id = R.drawable.moodsick),
                 contentDescription = null,
                 modifier = Modifier.size(50.dp)
             )
-        } else if (analysisText.contains("triste")) {
+        } else if (analysisText.contains("triste") || analysisText.contains("Triste")) {
             Image(
                 painter = painterResource(id = R.drawable.moodsad),
                 contentDescription = null,

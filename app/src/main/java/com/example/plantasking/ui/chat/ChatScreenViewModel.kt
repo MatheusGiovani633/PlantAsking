@@ -16,13 +16,23 @@ data class ChatUiState(
     val error: String? = null
 )
 
-class ChatViewModel : ViewModel() {
+class ChatScreenViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState = _uiState.asStateFlow()
-
     private val plantRepository = PlantRepository()
+    private var plantBitmap: Bitmap? = null
 
-    fun sendMessage(userMessage: String, plantBitmap: Bitmap?) {
+
+    fun setPlantImage(bitmap: Bitmap?) {
+        if (this.plantBitmap == null) {
+            this.plantBitmap = bitmap
+        }
+    }
+    fun sendMessage(userMessage: String) {
+        if (plantBitmap == null) {
+            handleError("Erro: A imagem da planta não foi inicializada.")
+            return
+        }
         val newUserMessage = Message(userMessage, Author.USER)
         _uiState.update { currentState ->
             currentState.copy(
@@ -30,15 +40,9 @@ class ChatViewModel : ViewModel() {
                 isLoading = true
             )
         }
-
-        if (plantBitmap == null) {
-            handleError("Imagem da planta não encontrada.")
-            return
-        }
-
         viewModelScope.launch {
             val botResponseText = plantRepository.generateChatByImage(
-                bitmap = plantBitmap,
+                bitmap = plantBitmap!!,
                 message = userMessage
             )
 
