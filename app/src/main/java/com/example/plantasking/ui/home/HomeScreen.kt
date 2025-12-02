@@ -89,11 +89,9 @@ fun HomeScreen(
     ) {
         if (hasRequiredPermissions) {
             CameraPreview(
-                modifier = Modifier.fillMaxSize(),
-                onTakePictureClick = { imageCapture ->
+                modifier = Modifier.fillMaxSize(), onTakePictureClick = { imageCapture ->
                     viewModel.onTakePicture(context, imageCapture)
-                }
-            )
+                })
         } else {
             PermissionDeniedContent(
                 onRequestPermission = {
@@ -118,10 +116,10 @@ fun HomeScreen(
         if (uiState.showDialog) {
             val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ModalBottomSheet(
-                onDismissRequest = { viewModel.onDialogDismissAndClearImage() }, sheetState = sheetState
+                onDismissRequest = { viewModel.onDialogDismissAndClearImage() },
+                sheetState = sheetState
             ) {
-                ActionMenuContent(
-                onInitChat = {
+                ActionMenuContent(onInitChat = {
                     viewModel.onDialogDismissWithImageSaved()
                     onInitChat(uiState.capturedImageUri)
                 }, onSaveMoodClick = {
@@ -133,7 +131,8 @@ fun HomeScreen(
         }
         if (uiState.analysisResult != null) {
             ViewMood(
-                onDismiss = { viewModel.onDialogDismissAndClearImage() }, analysisText = uiState.analysisResult
+                onDismiss = { viewModel.onDialogDismissAndClearImage() },
+                analysisText = uiState.analysisResult
             )
         }
     }
@@ -152,6 +151,17 @@ private fun ActionMenuContent(
             .heightIn(250.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Foto Salva com sucesso! Escolha uma opção"
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 86.dp, vertical = 10.dp)
+            )
+        }
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -299,7 +309,7 @@ fun ViewMood(
                 contentDescription = null,
                 modifier = Modifier.size(50.dp)
             )
-        } else if (analysisText.contains("doente") ||analysisText.contains("Doente")) {
+        } else if (analysisText.contains("doente") || analysisText.contains("Doente")) {
             Image(
                 painter = painterResource(id = R.drawable.moodsick),
                 contentDescription = null,
