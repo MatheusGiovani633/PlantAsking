@@ -94,6 +94,7 @@ fun ChatScreen(
         ) {
             ChatMenu(
                 onBackClicked = {
+                    chatViewModel.clearChat()
                     onBackClicked()
                 }
             )
@@ -125,6 +126,7 @@ fun ChatScreen(
                 onMessageSend = { messageText ->
                     chatViewModel.sendMessage(messageText)
                 },
+
             )
         }
     }
@@ -266,7 +268,8 @@ fun ChatMenu(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
-            onClick = onBackClicked, modifier = Modifier
+            onClick = onBackClicked,
+            modifier = Modifier
                 .weight(0.15f)
                 .fillMaxHeight()
         ) {

@@ -58,7 +58,11 @@ class ChatScreenViewModel : ViewModel() {
             }
         }
     }
-
+    fun clearChat() {
+        _uiState.value = ChatUiState(
+            messages = listOf(Message("Olá! Sobre o que vamos conversar hoje?", Author.BOT))
+        )
+    }
     private fun parseBotResponse(rawResponse: String): String {
         return rawResponse.substringAfter("Resposta:").trim()
     }

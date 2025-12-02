@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
 fun PlantAsKingApp(modifier: Modifier = Modifier) {
     var isLoggedIn by remember { mutableStateOf(false) }
     var isInitChat by remember { mutableStateOf(false) }
-
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
 
     if (!isLoggedIn) {
