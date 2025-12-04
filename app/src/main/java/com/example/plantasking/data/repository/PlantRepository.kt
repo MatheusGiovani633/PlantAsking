@@ -21,7 +21,6 @@ class PlantRepository {
                 A 'recommendation' deve ser uma sugestão de cuidado curta.
             """.trimIndent()
 
-    //TODO: essa aqui é o custom prompt para usar no method de conversação. Deixar com placeholders tipo '%s' para que quando o user digitar algo, seja substituido
     var custom_prompt = """
         Verifique inicialmente se é uma planta, caso não for, retorne o texto "A foto retirada não é uma planta, tente novamente".
         Caso seja uma planta, faça:
@@ -48,8 +47,7 @@ class PlantRepository {
 
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash",
-        apiKey = BuildConfig.GEMINI_API_KEY
+        modelName = "gemini-2.5-flash", apiKey = BuildConfig.GEMINI_API_KEY
     )
 
     /**
@@ -72,12 +70,9 @@ class PlantRepository {
         }
     }
 
-    //TODO: nos params como tu pode ver, no method ele recebe uma string. Exemplo: nome: String, idade: Int, peso: Double
-    //TODO: vai utilizar o String.format(prompt, message) para formatar a msg do user dentro do prompt e retornar a str.
-    //TODO: talvez precise utilizar Index para identificar onde colocar a msg do user, vai de como tu for utilizar
+
     suspend fun generateChatByImage(
-        bitmap: Bitmap,
-        message: String
+        bitmap: Bitmap, message: String
     ): String? {
         try {
             val formattedPrompt = String.format(custom_prompt, message)
@@ -86,8 +81,7 @@ class PlantRepository {
                 content {
                     image(bitmap)
                     text(formattedPrompt)
-                }
-            )
+                })
 
             Log.d("generateChatByImage", "Resposta da API: ${response.text}")
             return response.text
